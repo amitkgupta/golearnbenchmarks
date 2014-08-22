@@ -1,7 +1,7 @@
 package classifiers_test
 
 import (
-	. "github.com/amitkgupta/golearnbenchmark/classifiers/sharedbehaviors"
+	. "github.com/amitkgupta/golearnbenchmarks/classifiers/sharedbehaviors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
