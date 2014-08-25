@@ -8,42 +8,37 @@ import (
 
 	"github.com/sjwhitworth/golearn/base"
 	"github.com/sjwhitworth/golearn/ensemble"
-	"github.com/sjwhitworth/golearn/filters"
 )
 
-const (
-	basicDatasetFilterSignificance      = 0.6
-	basicDatasetTrainTestSplit          = 0.6
-	basicDatasetForestSize              = 50
-	basicDatasetMinAccuracyThreshold    = 0.7
-	basicDatasetMaxSecondsTimeThreshold = 0.45
-	basicDatasetNumRepitions            = 10
-)
-
-var _ = Describe("Random Forest on Filtered Data", func() {
+var _ = Describe("Random Forest", func() {
 	inputs := ClassifiesAccuratelyAndQuicklyBehaviorInputs{}
+
+	const (
+		basicDatasetForestSize              = 50
+		basicDatasetMinAccuracyThreshold    = 0.4
+		basicDatasetMaxSecondsTimeThreshold = 0.45
+		basicDatasetNumRepetitions          = 10
+	)
 
 	Context("When given a basic dataset", func() {
 		BeforeEach(func() {
-			instances, err := base.ParseCSVToInstances("datasets/iris_headers.csv", true)
+			trainingData, err := base.ParseCSVToInstances("datasets/basic_training.csv", true)
+			Ω(err).ShouldNot(HaveOccurred())
+			testData, err := base.ParseCSVToInstances("datasets/basic_test.csv", true)
 			Ω(err).ShouldNot(HaveOccurred())
 
-			filter := filters.NewChiMergeFilter(instances, basicDatasetFilterSignificance)
-			for _, a := range base.NonClassFloatAttributes(instances) {
-				filter.AddAttribute(a)
-			}
-			filter.Train()
-			filteredInstances := base.NewLazilyFilteredInstances(instances, filter)
-			numNonClassAttributes := len(base.NonClassAttributes(filteredInstances))
+			inputs.TrainingData = trainingData
+			inputs.TestData = testData
 
-			inputs.TrainingData, inputs.TestData = base.InstancesTrainTestSplit(filteredInstances, basicDatasetTrainTestSplit)
+			numNonClassAttributes := len(base.NonClassAttributes(trainingData))
 			inputs.Classifier = ensemble.NewRandomForest(basicDatasetForestSize, numNonClassAttributes)
+
 			inputs.MinAccuracyThreshold = basicDatasetMinAccuracyThreshold
 			inputs.MaxSecondsTimeThreshold = basicDatasetMaxSecondsTimeThreshold
 		})
 
 		It("classifies without error", ClassifiesWithoutError(&inputs))
-		Measure("consistently classifies sufficiently accurately", ClassifiesSufficientlyAccurately(&inputs), basicDatasetNumRepitions)
-		Measure("consistently classifies sufficiently quickly", ClassifiesSufficientlyQuickly(&inputs), basicDatasetNumRepitions)
+		Measure("reliably classifies sufficiently accurately", ClassifiesSufficientlyAccurately(&inputs), basicDatasetNumRepetitions)
+		Measure("reliably classifies sufficiently quickly", ClassifiesSufficientlyQuickly(&inputs), basicDatasetNumRepetitions)
 	})
 })

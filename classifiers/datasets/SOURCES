@@ -1,0 +1,13 @@
+SOURCES
+=======
+
+* **basic.csv**
+
+  github.com/sjwhitworth/golearn/examples/datasets/iris_header.csv
+
+* **many_features.csv**
+
+  Anderson Rocha and Siome Goldenstein.
+  Multiclass from binary: Expanding one-vs-all, one-vs-one and ECOC-based approaches.
+  IEEE Transactions on Neural Networks and Learning Systems, 25(2):289-302, 2014.
+

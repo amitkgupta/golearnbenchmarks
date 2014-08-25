@@ -12,6 +12,7 @@ type ClassifiesAccuratelyAndQuicklyBehaviorInputs struct {
 	Classifier              base.Classifier
 	TrainingData            base.FixedDataGrid
 	TestData                base.FixedDataGrid
+	ExpectedAccuracy        float64
 	MinAccuracyThreshold    float64
 	MaxSecondsTimeThreshold float64
 }
@@ -23,6 +24,17 @@ var ClassifiesWithoutError = func(inputs *ClassifiesAccuratelyAndQuicklyBehavior
 
 		_, err = inputs.Classifier.Predict(inputs.TestData)
 		Ω(err).ShouldNot(HaveOccurred())
+	}
+}
+
+var ClassifiesWithDeterministicAccuracy = func(inputs *ClassifiesAccuratelyAndQuicklyBehaviorInputs) func() {
+	return func() {
+		inputs.Classifier.Fit(inputs.TrainingData)
+		predictions, _ := inputs.Classifier.Predict(inputs.TestData)
+
+		confusionMatrix, err := evaluation.GetConfusionMatrix(inputs.TestData, predictions)
+		Ω(err).ShouldNot(HaveOccurred())
+		Ω(evaluation.GetAccuracy(confusionMatrix)).Should(BeNumerically("~", inputs.ExpectedAccuracy, 0.001))
 	}
 }
 
